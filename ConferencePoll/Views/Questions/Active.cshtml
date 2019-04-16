@@ -10,11 +10,10 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Answer">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="QuestionTextHtml" class="control-label"></label>
-                <input asp-for="QuestionTextHtml" class="form-control" />
                 <span asp-validation-for="QuestionTextHtml" class="text-danger"></span>
                 @{
                     string[] answers = @Model.QuestionAnswers.Split(',');

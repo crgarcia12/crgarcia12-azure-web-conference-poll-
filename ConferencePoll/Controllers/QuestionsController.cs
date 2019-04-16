@@ -10,6 +10,7 @@ using ConferencePoll.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ConferencePoll.Controllers
 {
@@ -26,7 +27,7 @@ namespace ConferencePoll.Controllers
         [Authorize(Roles="Admin")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Question.ToListAsync());
+            return View(await _context.Questions.ToListAsync());
         }
 
         // GET: Questions/Details/5
@@ -38,7 +39,7 @@ namespace ConferencePoll.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Question
+            var question = await _context.Questions
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (question == null)
             {
@@ -82,7 +83,7 @@ namespace ConferencePoll.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Question.FindAsync(id);
+            var question = await _context.Questions.FindAsync(id);
             if (question == null)
             {
                 return NotFound();
@@ -135,7 +136,7 @@ namespace ConferencePoll.Controllers
                 return NotFound();
             }
 
-            var question = await _context.Question
+            var question = await _context.Questions
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (question == null)
             {
@@ -151,8 +152,8 @@ namespace ConferencePoll.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var question = await _context.Question.FindAsync(id);
-            _context.Question.Remove(question);
+            var question = await _context.Questions.FindAsync(id);
+            _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -168,7 +169,7 @@ namespace ConferencePoll.Controllers
                 Console.WriteLine(c.Type + c.Value);
             }
 
-            var question = await _context.Question
+            var question = await _context.Questions
                 .FirstOrDefaultAsync(q => q.IsAllowedToAnswer == true);
             if (question == null)
             {
@@ -182,30 +183,33 @@ namespace ConferencePoll.Controllers
         // POST: Questions/Answer
         [Authorize]
         [HttpPost, ActionName("Answer")]
-        public async Task<IActionResult> Answer()
+        public async void Answer(Answer answer)
         {
-            var claims = HttpContext.User.Claims.ToList();
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            foreach (var c in claims)
+            int[] allowedToAnswerQuestionIndex = _context.Questions.Where(q => q.IsAllowedToAnswer == true).Select(q => q.QuestionIndex).ToArray();
+
+            if (!allowedToAnswerQuestionIndex.Contains(answer.QuestionIndex))
             {
-                Console.WriteLine(c.Type + c.Value);
+                throw new Exception("This question is not open for answering");
             }
 
-            var question = await _context.Question
-                .FirstOrDefaultAsync(q => q.IsAllowedToAnswer == true);
-            if (question == null)
-            {
-                return NotFound();
-            }
+            Answer existentAnswer = await _context.Answers.FirstOrDefaultAsync(a => a.UserId == userId && a.QuestionIndex == answer.QuestionIndex);
 
-            return View(question);
+            if(existentAnswer.AnswerId == 0)
+            {
+                _context.Answers.AddAsync(answer);
+            }
+            else
+            {
+                existentAnswer.AnswerIndex = answer.AnswerIndex;
+                _context.Update(existentAnswer);
+            }
         }
-
-
-
+        
         private bool QuestionExists(Guid id)
         {
-            return _context.Question.Any(e => e.Id == id);
+            return _context.Questions.Any(e => e.Id == id);
         }
     }
 }
