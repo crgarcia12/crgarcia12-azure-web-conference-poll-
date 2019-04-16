@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using ConferencePoll.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace ConferencePoll
 {
@@ -51,15 +52,26 @@ namespace ConferencePoll
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
+
+
+            //TODO: This is the .NetCore 2 way, but it has a bug, so replacing it by the .netframework way 
+            // services.AddDefaultIdentity<IdentityUser>()
+            //    .AddRoles<IdentityRole>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            //services.AddDefaultIdentity<IdentityUser>()
-            //    .AddRoles<IdentityRole>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+            //END TODO
+
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -84,6 +96,16 @@ namespace ConferencePoll
 
             app.UseAuthentication();
 
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -91,6 +113,7 @@ namespace ConferencePoll
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
+            // TODO: Make sure we have a hardcoded admin
             CreateUserRoles(serviceProvider).Wait();
 
         }

@@ -160,6 +160,9 @@ namespace ConferencePoll.Controllers
 
         // GET: Questions/Active
         [Authorize]
+        [HttpGet]
+        [Route("/questions/Active")]
+        [ProducesResponseType(typeof(Answer), 200)]
         public async Task<IActionResult> Active()
         {
             var claims = HttpContext.User.Claims.ToList();
@@ -183,6 +186,7 @@ namespace ConferencePoll.Controllers
         // POST: Questions/Answer
         [Authorize]
         [HttpPost, ActionName("Answer")]
+        [Route("/questions/answer")]
         public async void Answer(Answer answer)
         {
             string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
