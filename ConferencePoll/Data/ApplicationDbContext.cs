@@ -13,6 +13,7 @@ namespace ConferencePoll.Data
             : base(options)
         {
         }
-        public DbSet<ConferencePoll.Models.Question> Question { get; set; }
+        public DbSet<ConferencePoll.Models.Question> Questions { get; set; }
+        public DbSet<ConferencePoll.Models.Answer> Answers { get; set; }
     }
 }
