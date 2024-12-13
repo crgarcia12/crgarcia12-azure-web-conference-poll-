@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.SignalR;
 
-public class ArticleHub : Hub<IArticleHub>
+public class QuestionsHub : Hub<IQuestionsHub>
 {
     public override async Task OnConnectedAsync()
     {

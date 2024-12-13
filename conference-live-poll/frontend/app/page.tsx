@@ -42,7 +42,7 @@ export default function Home() {
       console.log(`[MainPage] Reading environment variables [${process.env.NEXT_PUBLIC_BACKEND_URI}]`);
       var uri = process.env.NEXT_PUBLIC_BACKEND_URI
         ? process.env.NEXT_PUBLIC_BACKEND_URI
-        : 'http://localhost:59028';
+        : 'http://localhost:60682';
       
       uri = new URL('articlehub', uri).href;
       console.log(`[MainPage] Connecting to [${uri}]`);

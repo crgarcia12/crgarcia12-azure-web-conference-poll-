@@ -1,6 +1,6 @@
 ﻿namespace pollbackend;
 
-public interface IArticleHub
+public interface IQuestionsHub
 {
     public Task ConnectToAgent(string SessionId);
 

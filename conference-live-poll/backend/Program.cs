@@ -38,7 +38,7 @@ public class Program
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
-        app.MapHub<ArticleHub>("/articlehub");
+        app.MapHub<QuestionsHub>("/articlehub");
 
         app.UseSwagger();
         app.UseSwaggerUI(c =>

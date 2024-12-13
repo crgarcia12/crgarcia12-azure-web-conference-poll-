@@ -5,8 +5,8 @@ namespace pollbackend;
 
 public class SignalRService : ISignalRService
 {
-    private readonly IHubContext<ArticleHub> _hubContext;
-    public SignalRService(IHubContext<ArticleHub> hubContext)
+    private readonly IHubContext<QuestionsHub> _hubContext;
+    public SignalRService(IHubContext<QuestionsHub> hubContext)
     {
         _hubContext = hubContext;
     }
