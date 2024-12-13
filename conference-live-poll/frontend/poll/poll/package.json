@@ -1,0 +1,31 @@
+{
+  "name": "poll",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.1.0",
+
+    "uuidv4": "^6.2.13",
+    "@eslint/eslintrc": "^3",
+    "@mui/material": "^5",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@microsoft/signalr": "^5"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.0"
+  }
+}
