@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Marketing.SignalRHub;
+namespace pollbackend;
 public static class SignalRConnectionsDB
 {
     public static ConcurrentDictionary<string, string> ConnectionIdByUser { get; } = new ConcurrentDictionary<string, string>();

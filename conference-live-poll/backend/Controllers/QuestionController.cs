@@ -1,19 +1,6 @@
-﻿namespace pollbackend.Controllers;
+﻿namespace pollbackend;
 
-using Marketing.SignalRHub;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-public class NewQuestion {
-    string query {  get; set; }
-    string answer1 { get; set; }
-    string answer2 { get; set; }
-    string answer3 { get; set; }
-
-}
-
 
 [Route("api/[controller]")]
 [ApiController]

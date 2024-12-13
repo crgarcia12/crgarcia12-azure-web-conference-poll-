@@ -1,4 +1,4 @@
-﻿namespace Marketing.SignalRHub;
+﻿namespace pollbackend;
 
 public interface IArticleHub
 {

@@ -15,19 +15,25 @@ export type QuestionMessage = {
   question: string;
   answer1: string;
   answer2: string;
+  answer3: string;
+};
+
+export type AnswerMessage = {
+  sessionId: string;
+  question: string;
   vote: number;
 };
 
 const defaultQuestion: QuestionMessage = {
   sessionId: '1234',
-  question: 'What is your favorite color?',
+  question: 'Waiting for the question...',
   answer1: 'Red',
   answer2: 'Blue',
-  vote: 0,
+  answer3: 'Green'
 };
 
 export default function Home() {
-  const [sessionId, setSessionId] = React.useState<string>(uuidv4());
+  const [sessionId] = React.useState<string>(uuidv4());
   const [connection, setConnection] = React.useState<HubConnection>();
   const [currentQuestion, setMessages] = React.useState<QuestionMessage>(defaultQuestion);
 
@@ -36,7 +42,7 @@ export default function Home() {
       console.log(`[MainPage] Reading environment variables [${process.env.NEXT_PUBLIC_BACKEND_URI}]`);
       var uri = process.env.NEXT_PUBLIC_BACKEND_URI
         ? process.env.NEXT_PUBLIC_BACKEND_URI
-        : 'http://localhost:5173';
+        : 'http://localhost:59028';
       
       uri = new URL('articlehub', uri).href;
       console.log(`[MainPage] Connecting to [${uri}]`);
@@ -50,7 +56,7 @@ export default function Home() {
 
       //setup handler
       connection.on('ReceiveMessage', (message: QuestionMessage) => {
-        console.log(`[MainPage][${message.sessionId}] Received message from ${message.agent}: ${message.message}`);
+        console.log(`[MainPage][${message.sessionId}] Received question: ${message.question}`);
         message.sessionId = sessionId;
         setMessages(message);
       });
@@ -79,16 +85,17 @@ export default function Home() {
     }
   };
 
-  const sendMessage = async (message: QuestionMessage) => {
+  const sendAnswer = async (answerMessage: AnswerMessage) => {
     if (connection) {
-      console.log(`[MainPage][Sending message: ${message}`);
-      message.sessionId = sessionId;
-      await connection.invoke('ProcessMessage', message);
-      console.log(`[MainPage][Message sent`);
+      answerMessage.sessionId = sessionId;
+      console.log(`[MainPage] Sending answer: ${answerMessage}`);
+      await connection.invoke('PushAnswer', answerMessage);
+      console.log(`[MainPage] Answer sent`);
     } else {
-      console.error(`[MainPage] Connection not established.`);
+      console.error(`[MainPage] Connection not established. Answer could not be sent.`);
     }
   }
+  
 
   React.useEffect(() => {
     createSignalRConnection(sessionId);
@@ -97,7 +104,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Poll currentQuestion={currentQuestion} sendMessage={sendMessage} />
+        <Poll currentQuestion={currentQuestion} sendAnswer={sendAnswer} />
       </main>
       {/* <footer className={styles.footer}>
         <a

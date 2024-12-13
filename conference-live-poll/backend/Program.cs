@@ -1,5 +1,3 @@
-using Marketing.SignalRHub;
-
 namespace pollbackend;
 
 public class Program

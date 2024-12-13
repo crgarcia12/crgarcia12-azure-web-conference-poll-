@@ -1,4 +1,4 @@
-﻿namespace Marketing.SignalRHub;
+﻿namespace pollbackend;
 
 using Microsoft.AspNetCore.SignalR;
 
@@ -16,15 +16,9 @@ public class ArticleHub : Hub<IArticleHub>
         await base.OnDisconnectedAsync(exception);
     }
 
-    /// <summary>
-    /// This method is called when a new message from the client arrives.
-    /// </summary>
-    /// <param name="frontEndMessage"></param>
-    /// <param name="clusterClient"></param>
-    /// <returns></returns>
-    public async Task ProcessMessage(FrontEndMessage frontEndMessage)
+    public async Task PushAnswer(AnswerMessage answerMessage)
     {
-
+        Console.WriteLine($"Received Answer: {answerMessage.vote} - {answerMessage.ToString()}");
 
     }
 

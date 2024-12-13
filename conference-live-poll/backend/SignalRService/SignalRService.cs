@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
-namespace Marketing.SignalRHub;
+namespace pollbackend;
 
 public class SignalRService : ISignalRService
 {
@@ -14,6 +14,5 @@ public class SignalRService : ISignalRService
     public async Task SendMessageToSpecificClient(FrontEndMessage fem)
     {
         await _hubContext.Clients.All.SendAsync("ReceiveMessage", fem);
-        //await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", frontEndMessage);
     }
 }

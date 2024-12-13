@@ -1,4 +1,4 @@
-﻿namespace Marketing.SignalRHub;
+﻿namespace pollbackend;
 
 public class FrontEndMessage
 {
@@ -6,5 +6,5 @@ public class FrontEndMessage
     public string question { get; set; }
     public string answer1 { get; set; }
     public string answer2 { get; set; }
-    public int vote { get; set; }
+    public string answer3 { get; set; }
 }
