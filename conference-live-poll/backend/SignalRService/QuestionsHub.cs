@@ -4,6 +4,13 @@ using Microsoft.AspNetCore.SignalR;
 
 public class QuestionsHub : Hub<IQuestionsHub>
 {
+    IQuestionDB _questionDB;
+
+    public QuestionsHub(IQuestionDB questionDB)
+    {
+        _questionDB = questionDB;
+    }
+
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
@@ -19,7 +26,7 @@ public class QuestionsHub : Hub<IQuestionsHub>
     public async Task PushAnswer(AnswerMessage answerMessage)
     {
         Console.WriteLine($"Received Answer: {answerMessage.vote} - {answerMessage.ToString()}");
-
+        _questionDB.AddVote(answerMessage.question, answerMessage.sessionId, answerMessage.vote - 1);
     }
 
     // This method is called when a new user connects to the hub.

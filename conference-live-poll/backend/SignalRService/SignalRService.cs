@@ -11,8 +11,13 @@ public class SignalRService : ISignalRService
         _hubContext = hubContext;
     }
 
-    public async Task SendMessageToSpecificClient(QuestionMessage fem)
+    public async Task SendQuestionMessageToAllClients(QuestionMessage qm)
     {
-        await _hubContext.Clients.All.SendAsync("ReceiveMessage", fem);
+        await _hubContext.Clients.All.SendAsync("QuestionMessage", qm);
+    }
+
+    public async Task SendResultMessageToAllClients(ResultMessage rm)
+    {
+        await _hubContext.Clients.All.SendAsync("ResultMessage", rm);
     }
 }

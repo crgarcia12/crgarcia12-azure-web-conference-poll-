@@ -1,6 +1,6 @@
 "use client"; // This is a client component 👈🏽
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, RadioGroup, FormControlLabel, Radio, Button } from '@mui/material';
 import { AnswerMessage, QuestionMessage } from '../page';
 
@@ -16,6 +16,11 @@ const Poll = ({currentQuestion, sendAnswer}: PollProps ) => {
   const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
   };
+
+  useEffect(() => {
+    setSelectedOption('');
+    setVoted(false);
+  }, [currentQuestion]);
 
   const handleVote = () => {
     if (selectedOption) {

@@ -8,6 +8,7 @@ import { HubConnectionBuilder, HubConnection, LogLevel } from '@microsoft/signal
 import { v4 as uuidv4 } from 'uuid';
 
 import Poll from './poll/page'; // Import the Poll component
+import Result from './result/page'; // Import the Result component
 import Connect from "./connect/page";
 
 export type QuestionMessage = {
@@ -29,7 +30,6 @@ export type ConnectMessage = {
 
 export type ResultMessage = {
   question: string;
-  options: number[];
   series: {
     data: {
       id: number;
@@ -45,14 +45,21 @@ const defaultQuestion: QuestionMessage = {
   options: []
 };
 
+const defaultResult: ResultMessage = {
+  question: 'Waiting for the result...',
+  series: []
+};
+
 export default function Home() {
   const [sessionId, setSessionId] = React.useState<string>(uuidv4());
+  
   const [connection, setConnection] = React.useState<HubConnection>();
-  const [currentQuestion, setMessages] = React.useState<QuestionMessage>(defaultQuestion);
-
   const [connectingState, setConnectingState] = React.useState(0); // 0: not connecting, 1: connecting, 2: connected
   const [connectingErrorMessage, setConnectingErrorMessage] = React.useState('');
 
+  const [currentComponent, setCurrentComponent] = React.useState(0); // 0: connecting, 1: question, 2: results
+  const [currentQuestion, setCurrentQuestion] = React.useState<QuestionMessage>(defaultQuestion);
+  const [currentResult, setCurrentResult] = React.useState<ResultMessage>(defaultResult);
   
   const connect = async (name: string) => {
     if (connectingState === 0) {
@@ -79,11 +86,18 @@ export default function Home() {
         .configureLogging(LogLevel.Information)
         .build();
 
-      //setup handler
-      connection.on('ReceiveMessage', (message: QuestionMessage) => {
+      //setup handlers
+      connection.on('QuestionMessage', (message: QuestionMessage) => {
         console.log(`[MainPage][${message.sessionId}] Received question: ${message.question}`);
         message.sessionId = sessionId;
-        setMessages(message);
+        setCurrentQuestion(message);
+        setCurrentComponent(1);
+      });
+
+      connection.on('ResultMessage', (message: ResultMessage) => {
+        console.log(`[MainPage] Received result for: ${message.question}`);
+        setCurrentResult(message);
+        setCurrentComponent(2);
       });
 
       connection.onclose(async () => {
@@ -99,6 +113,7 @@ export default function Home() {
           console.error(error);
           setConnectingErrorMessage('Could not connect to the server. Please try again later.');
           setConnectingState(0);
+          setCurrentComponent(0);
         }
       });
 
@@ -131,11 +146,15 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        {connectingState != 2 ? (
-          <Connect connectingErrorMessage={connectingErrorMessage} connect={connect} connectingState={connectingState} />
-        ) : (
-          <Poll currentQuestion={currentQuestion} sendAnswer={sendAnswer} />
-        )}
+      {currentComponent === 0 && (
+        <Connect connectingErrorMessage={connectingErrorMessage} connect={connect} connectingState={connectingState} />
+      )}
+      {currentComponent === 1 && (
+        <Poll currentQuestion={currentQuestion} sendAnswer={sendAnswer} />
+      )}
+      {currentComponent === 2 && (
+        <Result currentResult={currentResult} />
+      )}
       </main>
     </div>
   );

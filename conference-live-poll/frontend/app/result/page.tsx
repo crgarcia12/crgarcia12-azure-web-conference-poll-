@@ -7,28 +7,20 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { ResultMessage } from '../page';
 
 type ResultProps = {
-  resultMessage: ResultMessage;
+  currentResult: ResultMessage;
 };
 
-const Result = ({resultMessage}: ResultProps ) => {
+const Result = ({currentResult}: ResultProps ) => {
   const [selectedOption, setSelectedOption] = useState('');
   const [voted, setVoted] = useState(false);
 
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
-        {resultMessage.question}
+        {currentResult.question}
       </Typography>
       <PieChart
-        series={[
-          {
-            data: [
-              { id: 0, value: 10, label: 'series A' },
-              { id: 1, value: 15, label: 'series B' },
-              { id: 2, value: 20, label: 'series C' },
-            ],
-          },
-        ]}
+        series={currentResult.series}
         width={400}
         height={200}
       />
@@ -36,4 +28,4 @@ const Result = ({resultMessage}: ResultProps ) => {
   );
 };
 
-export default Poll;
+export default Result;

@@ -6,7 +6,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddSwaggerGen();
-
+        builder.Services.AddSingleton<IQuestionDB, QuestionsDB>();
         builder.Services.AddSignalR();
         builder.Services.AddSingleton<ISignalRService, SignalRService>();
 

@@ -1,5 +1,6 @@
 ﻿namespace pollbackend;
 public interface ISignalRService
 {
-    Task SendMessageToSpecificClient(QuestionMessage fem);
+    Task SendQuestionMessageToAllClients(QuestionMessage fem);
+    Task SendResultMessageToAllClients(ResultMessage fem);
 }
