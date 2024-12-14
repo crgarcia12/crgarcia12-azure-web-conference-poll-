@@ -2,20 +2,18 @@
 
 import Image from "next/image";
 import styles from "./page.module.css";
-import Poll from './poll/page'; // Import the Poll component
-
 import React, { useEffect, useState } from 'react';
 import signalRService from './signalr/signalrservice';
 import { HubConnectionBuilder, HubConnection, LogLevel } from '@microsoft/signalr';
-
 import { v4 as uuidv4 } from 'uuid';
+
+import Poll from './poll/page'; // Import the Poll component
+import Connect from "./connect/page";
 
 export type QuestionMessage = {
   sessionId: string;
   question: string;
-  answer1: string;
-  answer2: string;
-  answer3: string;
+  options: string[];
 };
 
 export type AnswerMessage = {
@@ -24,25 +22,52 @@ export type AnswerMessage = {
   vote: number;
 };
 
+export type ConnectMessage = {
+  sessionId: string;
+  name: string;
+};
+
+export type ResultMessage = {
+  question: string;
+  options: number[];
+  series: {
+    data: {
+      id: number;
+      value: number;
+      label: string;
+    }[];
+  }[];
+};
+
 const defaultQuestion: QuestionMessage = {
-  sessionId: '1234',
+  sessionId: '',
   question: 'Waiting for the question...',
-  answer1: 'Red',
-  answer2: 'Blue',
-  answer3: 'Green'
+  options: []
 };
 
 export default function Home() {
-  const [sessionId] = React.useState<string>(uuidv4());
+  const [sessionId, setSessionId] = React.useState<string>(uuidv4());
   const [connection, setConnection] = React.useState<HubConnection>();
   const [currentQuestion, setMessages] = React.useState<QuestionMessage>(defaultQuestion);
 
-  const createSignalRConnection = async (sessionId: string) => {
+  const [connectingState, setConnectingState] = React.useState(0); // 0: not connecting, 1: connecting, 2: connected
+  const [connectingErrorMessage, setConnectingErrorMessage] = React.useState('');
+
+  
+  const connect = async (name: string) => {
+    if (connectingState === 0) {
+      setConnectingState(1);
+      setSessionId(uuidv4());
+      await createSignalRConnection(sessionId, name);
+    }
+  };
+
+  const createSignalRConnection = async (sessionId: string, name: string) => {
     try {
       console.log(`[MainPage] Reading environment variables [${process.env.NEXT_PUBLIC_BACKEND_URI}]`);
       var uri = process.env.NEXT_PUBLIC_BACKEND_URI
         ? process.env.NEXT_PUBLIC_BACKEND_URI
-        : 'http://localhost:60682';
+        : 'http://localhost:59028';
       
       uri = new URL('articlehub', uri).href;
       console.log(`[MainPage] Connecting to [${uri}]`);
@@ -65,23 +90,30 @@ export default function Home() {
         console.log(`[MainPage] Connection closed.`);
 
         try {
-          await connection.start();
-          console.log(`Connection ID: ${connection.connectionId}`);
-          await connection.invoke('ConnectToAgent', sessionId);
+          console.log(`[MainPage] Connecting ID: ${connection.connectionId}; Name: ${name}`);
+            const connectMessage: ConnectMessage = { sessionId: sessionId, name: name };
+            await connection.start();
+            await connection.invoke('ConnectToAgent', connectMessage);
           console.log(`[MainPage] Connection re-established.`);
         } catch (error) {
           console.error(error);
+          setConnectingErrorMessage('Could not connect to the server. Please try again later.');
+          setConnectingState(0);
         }
       });
 
-      await connection.start();
-      console.log(`Connection ID: ${connection.connectionId}`);
-      await connection.invoke('ConnectToAgent', sessionId);
+      console.log(`[MainPage] Connecting ID: ${connection.connectionId}; Name: ${name}`);     
+        const connectMessage: ConnectMessage = { sessionId: sessionId, name: name };
+        await connection.start();
+        await connection.invoke('ConnectToAgent', connectMessage);
+      console.log(`[MainPage] Connection re-established.`);
 
       setConnection(connection);
       console.log(`[MainPage] Connection established.`);
     } catch (error) {
       console.error(error);
+      setConnectingErrorMessage('Could not connect to the server. Please try again later.');
+      setConnectingState(0);
     }
   };
 
@@ -95,61 +127,16 @@ export default function Home() {
       console.error(`[MainPage] Connection not established. Answer could not be sent.`);
     }
   }
-  
-
-  React.useEffect(() => {
-    createSignalRConnection(sessionId);
-  }, []);
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Poll currentQuestion={currentQuestion} sendAnswer={sendAnswer} />
+        {connectingState != 2 ? (
+          <Connect connectingErrorMessage={connectingErrorMessage} connect={connect} connectingState={connectingState} />
+        ) : (
+          <Poll currentQuestion={currentQuestion} sendAnswer={sendAnswer} />
+        )}
       </main>
-      {/* <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer> */}
     </div>
   );
 }

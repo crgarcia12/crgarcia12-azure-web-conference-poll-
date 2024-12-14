@@ -23,14 +23,8 @@ public class QuestionsHub : Hub<IQuestionsHub>
     }
 
     // This method is called when a new user connects to the hub.
-    public async Task ConnectToAgent(string SessionId)
+    public async Task ConnectToAgent(ConnectMessage connectMessage)
     {
-        var frontEndMessage = new FrontEndMessage()
-        {
-            sessionId = SessionId,
-            question = "Connected to agents",
-        };
-
-        SignalRConnectionsDB.ConnectionIdByUser.AddOrUpdate(SessionId, Context.ConnectionId, (key, oldValue) => Context.ConnectionId);
+        SignalRConnectionsDB.ConnectionIdByUser.AddOrUpdate(connectMessage.sessionId, Context.ConnectionId, (key, oldValue) => Context.ConnectionId);
     }
 }

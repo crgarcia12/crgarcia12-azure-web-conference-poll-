@@ -36,9 +36,14 @@ const Poll = ({currentQuestion, sendAnswer}: PollProps ) => {
         {currentQuestion.question}
       </Typography>
       <RadioGroup value={selectedOption} onChange={handleOptionChange}>
-        <FormControlLabel value="option1" control={<Radio />} label={currentQuestion.answer1} />
-        <FormControlLabel value="option2" control={<Radio />} label={currentQuestion.answer2} />
-        <FormControlLabel value="option3" control={<Radio />} label={currentQuestion.answer3} />
+        {currentQuestion.options.map((option, index) => (
+          <FormControlLabel 
+            key={index} 
+            value={`option${index + 1}`} 
+            control={<Radio />} 
+            label={option} 
+          />
+        ))}
       </RadioGroup>
       <Button variant="contained" color="primary" onClick={handleVote} disabled={!selectedOption || voted}>
         {voted ? 'Voted' : 'Vote'}

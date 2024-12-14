@@ -21,21 +21,11 @@ public class QuestionController : ControllerBase
     [HttpGet()]
     public async Task<string> Get()
     {
-        // Get parameters from querystring
-
-        FrontEndMessage fem = new FrontEndMessage
-        {
-            question = "asd",
-            answer1 = "as1",
-            answer2 = "as2",
-            sessionId = "sess"
-        };
-        await _signalRClient.SendMessageToSpecificClient(fem);
         return "Yes!";
     }
 
     [HttpPut()]
-    public async Task Put([FromBody] FrontEndMessage value)
+    public async Task Put([FromBody] QuestionMessage value)
     {
         await _signalRClient.SendMessageToSpecificClient(value);
     }
